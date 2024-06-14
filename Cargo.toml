@@ -8,7 +8,7 @@ license = "MIT OR Apache-2.0"
 description = "A platform agnostic driver to interface the ADS1256 (ADC)"
 keywords =["embedded-hal-driver", "ads1246", "spi"]
 readme = "README.md"
-repository = "https://github.com/vgasparyan/ads1256-rs"
+repository = "https://github.com/pronvis/ads1256-rs"
 
 [dependencies.embedded-hal]
 version = "0.2.0"
