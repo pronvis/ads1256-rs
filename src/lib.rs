@@ -10,6 +10,8 @@
 //!
 //! [datasheet] : http://www.ti.com/lit/ds/symlink/ads1256.pdf
 
+#![no_std]
+
 #[deny(missing_docs)]
 extern crate embedded_hal as hal;
 
@@ -149,7 +151,6 @@ impl Channel {
     }
 }
 
-
 #[derive(Debug, Copy, Clone)]
 pub struct Config {
     pub sampling_rate: SamplingRate,
@@ -167,7 +168,10 @@ impl Config {
 
 impl Default for Config {
     fn default() -> Self {
-        Config {sampling_rate: SamplingRate::Sps1000, gain: PGA::Gain1}
+        Config {
+            sampling_rate: SamplingRate::Sps1000,
+            gain: PGA::Gain1,
+        }
     }
 }
 
@@ -207,7 +211,7 @@ where
             reset_pin,
             data_ready_pin,
             delay,
-            config : Config::default(),
+            config: Config::default(),
         };
 
         //stop read data continuously
@@ -218,7 +222,7 @@ where
     }
 
     pub fn set_config(&mut self, config: &Config) -> Result<(), E> {
-        self.config =  *config;
+        self.config = *config;
         self.init()?;
         Ok(())
     }
@@ -243,9 +247,10 @@ where
     pub fn read_register(&mut self, reg: Register) -> Result<u8, E> {
         self.cs_pin.set_low();
         //write
-        self.spi.write(&[(Command::RREG.bits() | reg.addr()), 0x00])?;
+        self.spi
+            .write(&[(Command::RREG.bits() | reg.addr()), 0x00])?;
         self.delay.delay_us(10); //t6 delay
-         //read
+                                 //read
         let mut rx_buf = [0];
         self.spi.transfer(&mut rx_buf)?;
         self.delay.delay_us(5); //t11
@@ -276,13 +281,12 @@ where
         self.cs_pin.set_low();
         self.spi.write(&[Command::RDATA.bits()])?;
         self.delay.delay_us(10); //t6 delay = 50*0.13=6.5us
-         //receive 3 bytes from spi
+                                 //receive 3 bytes from spi
         let mut buf = [0u8; 3];
         self.spi.transfer(&mut buf)?;
         self.cs_pin.set_high();
 
-        let mut result: u32 = ((buf[0] as u32) << 16) |
-                              ((buf[1] as u32) << 8) | (buf[2] as u32);
+        let mut result: u32 = ((buf[0] as u32) << 16) | ((buf[1] as u32) << 8) | (buf[2] as u32);
         //sign extension if result is negative
         if (result & 0x800000) != 0 {
             result |= 0xFF000000;
