@@ -21,20 +21,33 @@ use hal::blocking::delay::DelayUs;
 /// ADC reference voltage in volts
 const REF_VOLTS: f64 = 2.5;
 
-//The operation of the ADS1256 is controlled through a set of registers.
-//ADS1256 datasheet,  Table 23.
-#[derive(Debug, Copy, Clone)]
+/// Read / write-able registers
+///
+/// Table 23 page 30 of specification.
+#[allow(non_camel_case_types)]
+#[derive(Debug, Clone, Copy)]
 pub enum Register {
+    /// STATUS REGISTER
     STATUS = 0x00,
+    /// Input Multiplexer Control Register
     MUX = 0x01,
+    /// A/D Control Register
     ADCON = 0x02,
+    /// A/D Data Rate
     DRATE = 0x03,
+    /// GPIO Control Registe
     IO = 0x04,
+    /// Offset Calibration Byte 0, least significant byte
     OFC0 = 0x05,
+    /// Offset Calibration Byte 1
     OFC1 = 0x06,
+    /// Offset Calibration Byte 2, most significant byte
     OFC2 = 0x07,
+    /// Full−scale Calibration Byte 0, least significant byte
     FSC0 = 0x08,
+    /// Full−scale Calibration Byte 1
     FSC1 = 0x09,
+    /// Full−scale Calibration Byte 2, most significant byte
     FSC2 = 0x0A,
 }
 
@@ -46,22 +59,36 @@ impl Register {
 
 /// The commands control the operation of the ADS1256.
 /// CS must stay low during the entire command sequence.
-/// See ADS1256 datasheet, Table 24.
+/// Table 24 page 34 of specification.
 pub enum Command {
-    WAKEUP = 0x00,   // Completes SYNC and Exits Standby Mode
-    RDATA = 0x01,    // Read Data
-    RDATAC = 0x03,   // Read Data Continuously
-    SDATAC = 0x0F,   // Stop Read Data Continuously
-    RREG = 0x10,     // Read from REG
-    WREG = 0x50,     // Write to REG
-    SELFCAL = 0xF0,  // Offset and Gain Self-Calibration
-    SELFOCAL = 0xF1, // Offset Self-Calibration
-    SELFGCAL = 0xF2, // Gain Self-Calibration
-    SYSOCAL = 0xF3,  // System Offset Calibration
-    SYSGCAL = 0xF4,  // System Gain Calibration
-    SYNC = 0xFC,     // Synchronize the A/D Conversion
-    STANDBY = 0xFD,  // Begin Standby Mode
-    RESET = 0xFE,    // Reset to Power-Up Values
+    /// Completes SYNC and Exits Standby Mode
+    WAKEUP = 0b_0000_0000, // or 0b_1111_1111
+    /// Read data
+    RDATA = 0b_0000_0001,
+    /// Read Data Continuously
+    RDATAC = 0b_0000_0011,
+    /// Stop Read Data Continuously
+    SDATAC = 0b_0000_1111,
+    /// Read registers starting at an address
+    RREG = 0b_0001_0000,
+    /// Write registers starting at an address
+    WREG = 0b_0101_0000,
+    /// Offset and Gain Self-Calibration
+    SELFCAL = 0b_1111_0000,
+    /// Offset Self-Calibration
+    SELFOCAL = 0b_1111_0001,
+    /// Gain Self-Calibration
+    SELFGCAL = 0b_1111_0010,
+    /// System Offset Calibration
+    SYSOCAL = 0b_1111_0011,
+    /// System Gain Calibration
+    SYSGCAL = 0b_1111_0100,
+    /// Synchronize the A/D Conversion
+    SYNC = 0b_1111_1100,
+    /// Begin Standby Mode
+    STANDBY = 0b_1111_1101,
+    /// Reset to Power-Up Values
+    RESET = 0b_1111_1110,
 }
 
 impl Command {
