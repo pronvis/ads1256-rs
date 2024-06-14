@@ -219,9 +219,9 @@ pub struct ADS1256<SPI, CS, RST, DRDY, D> {
 impl<SPI, CS, RST, DRDY, D, E> ADS1256<SPI, CS, RST, DRDY, D>
 where
     SPI: hal::blocking::spi::Transfer<u8, Error = E> + hal::blocking::spi::Write<u8, Error = E>,
-    CS: hal::digital::OutputPin,
-    RST: hal::digital::OutputPin,
-    DRDY: hal::digital::InputPin,
+    CS: hal::digital::v2::OutputPin,
+    RST: hal::digital::v2::OutputPin,
+    DRDY: hal::digital::v2::InputPin,
     D: DelayUs<u8>,
 {
     /// Creates a new driver from a SPI
